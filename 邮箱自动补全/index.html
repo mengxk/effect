@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="../css/bootstrap.min.css" />
+		<style>
+			.fl{ float: left;}
+			.box-email{ position: relative; z-index: 1;}
+			.box-email ul{ margin:0; padding:0; list-style: none;}
+			.box-email ul li a{ line-height: 2em; font-size:12px;}
+			.box-email ul li.selected a{ background:#e1e1e1;}
+		</style>
+	</head>
+	<body style="padding:300px;">
+		<div class="box-email fl">
+			<input class="form-control input-email" type="text" placeholder="邮箱自动补全" name="" id="" />
+		</div>
+		<script src="../js/jquery-1.11.2.min.js"></script>
+		<script src="../js/bootstrap.min.js"></script>
+		<script>
+			$(document).ready(function(){
+				jQuery.fn.emailAutomatic = function(){
+					//定义邮箱数组
+					var aEmail = ["@163.com", "@qq.com", "@gmail.com", "@126.com", "@hotmail.com", "@yahoo.com", "@yahoo.com.cn", "@live.com", "@sohu.com", "@sina.com"];
+					//显示列表
+					$("body").on("keyup", ".box-email .input-email", function(e){
+						var $this = $(this);
+						if($this.val().indexOf("@") > -1){
+							return false;
+						}
+						var $menu = $this.siblings(".dropdown-menu"); 
+						$menu.show();
+						if(e.keyCode == 40){
+							//$menu.find("li:first").addClass("selected");							
+						}
+						var sVal = $this.val();
+						$menu.find("li a").each(function(){
+							var $a = $(this);
+							var sText = $a.attr("data-email");
+							$a.text(sVal + sText);
+						});
+					});
+					//选项点击
+					$("body").on("click", ".box-email .dropdown-menu a", function(e){
+						var $this = $(this);
+						var sText = $this.text();
+						$this.closest(".dropdown-menu").hide().siblings(".input-email").val(sText);
+					});
+					//隐藏列表
+					$("body").on("blur", ".box-email .input-email", function(e){
+						$(this).next(".dropdown-menu").fadeOut(100);
+					});
+					
+					//创建邮箱列表
+					createMenuList();
+					function createMenuList(){
+						var sHtml = "<ul class='dropdown-menu'>";
+						for(var i = 0, iLen = aEmail.length; i < iLen; i++){
+							sHtml += ("<li><a data-email='" + aEmail[i] + "'>" + aEmail[i] + "</a></li>");
+						}
+						sHtml += "</ul>"
+						$(".box-email").append(sHtml);
+					}
+				}                                      
+				$().emailAutomatic();
+			});
+		</script>
+	</body>
+</html>
