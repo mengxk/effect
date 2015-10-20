@@ -9,7 +9,9 @@
 			.box-email{ position: relative; z-index: 1;}
 			.box-email ul{ margin:0; padding:0; list-style: none;}
 			.box-email ul li a{ line-height: 2em; font-size:12px;}
+			.box-email ul li.selected a{ background:#f5f5f5;}
 			.box-email ul li.selected a{ background:#e1e1e1;}
+			.box-email .dropdown-menu{ display:block;}
 		</style>
 	</head>
 	<body style="padding:300px;">
@@ -26,20 +28,40 @@
 					//显示列表
 					$("body").on("keyup", ".box-email .input-email", function(e){
 						var $this = $(this);
-						if($this.val().indexOf("@") > -1){
-							return false;
+						var aArr = $this.val().split("@");
+						if($this.val().indexOf("@") > -1 && aArr.length == 2){
+							var $menu = $this.siblings(".dropdown-menu"); 
+							if(e.keyCode == 40){
+								var index = $menu.find("li.selected").index() + 1;
+								if(index == $menu.find("li").length){
+									index = 0;
+								}
+								$menu.find(".selected").removeClass("selected");
+								$menu.find("li:eq(" + index + ")").addClass("selected");
+							}else if(e.keyCode == 38){
+								var index = $menu.find("li.selected").index() == -1 ? $menu.find("li").length - 1 : $menu.find("li.selected").index() - 1;
+								$menu.find(".selected").removeClass("selected");
+								$menu.find("li:eq(" + index + ")").addClass("selected");
+								var sVal = $this.val();
+								$this.val("").focus().val(sVal);
+							}else if(e.keyCode == 13){
+								$this.val($menu.find("li.selected a").text() || $this.val());
+								removeMenuList();
+							}else{
+								var sVal = aArr[0];
+								var sPoint = "@" + aArr[1];
+								var aPoint = [];
+								for(var i = 0, iLen = aEmail.length; i < iLen; i++){
+									if(sPoint == aEmail[i].substr(0, sPoint.length)){
+										aPoint.push(aEmail[i]);
+									}
+								}
+								createMenuList(aPoint, sVal);
+							}
+							
+						}else{
+							removeMenuList();
 						}
-						var $menu = $this.siblings(".dropdown-menu"); 
-						$menu.show();
-						if(e.keyCode == 40){
-							//$menu.find("li:first").addClass("selected");							
-						}
-						var sVal = $this.val();
-						$menu.find("li a").each(function(){
-							var $a = $(this);
-							var sText = $a.attr("data-email");
-							$a.text(sVal + sText);
-						});
 					});
 					//选项点击
 					$("body").on("click", ".box-email .dropdown-menu a", function(e){
@@ -53,14 +75,19 @@
 					});
 					
 					//创建邮箱列表
-					createMenuList();
-					function createMenuList(){
+					function createMenuList(aEmail, sVal){
+						removeMenuList();
 						var sHtml = "<ul class='dropdown-menu'>";
 						for(var i = 0, iLen = aEmail.length; i < iLen; i++){
-							sHtml += ("<li><a data-email='" + aEmail[i] + "'>" + aEmail[i] + "</a></li>");
+							sHtml += ("<li><a data-email='" + aEmail[i] + "'>" + sVal + aEmail[i] + "</a></li>");
 						}
 						sHtml += "</ul>"
 						$(".box-email").append(sHtml);
+					}
+					
+					//移除邮箱列表
+					function removeMenuList(){
+						$(".dropdown-menu").remove();
 					}
 				}                                      
 				$().emailAutomatic();
